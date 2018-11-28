@@ -1,0 +1,22 @@
+#!/bin/sh
+set -e
+if [ -z "$1" ]
+  then
+    echo "You must specify a branch to merge."
+    exit 1
+fi
+if [ -z "$2" ]
+  then
+    echo "You must specify a version."
+    exit 1
+fi
+if [ ! -z "$(git status --untracked-files=no --porcelain)" ]; then
+  echo 'The working directory must be clean to run this script.'
+  echo 'Please commit or stash your changes.'
+  exit 1
+fi
+export BRANCH="$1"
+export TAG="$1"
+export VERSION=`echo "$2" | sed 's/^v//g'`
+export MSG="Release version $TAG"
+export CURRENT_BRANCH=`git rev-parse HEAD`

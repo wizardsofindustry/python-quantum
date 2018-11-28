@@ -1,0 +1,72 @@
+#!/bin/sh
+#######################################################################
+#
+# QUANTUM TEST RUNNER
+#
+# The kind of tests is specified using the QUANTUM_TESTING_PHASE
+# environment variable. There are three distinct phases of testing:
+#
+# Unit:
+#   Atomic tests of the application codebase.
+# Integration:
+#   Test the application codebase as a whole, with external
+#   dependencies (e.g., database servers, HTTP APIs) mocked.
+# System:
+#   Test the application as a part of a larger system. Dependencies
+#   (databases, message brokers) may be assumed to installed at
+#   localhost (or the CI/CD slave).
+#
+#######################################################################
+export QUANTUM_TESTING_PHASE=${QUANTUM_TESTING_PHASE-"unit"}
+export SQ_TESTING_PHASE=${QUANTUM_TESTING_PHASE}
+export BUILD_ID=${BUILD_ID-"0"} # Used to allow concurrent builds in the CI.
+export MODULE_NAME="quantum"
+export MIN_PERCENTAGE="100"
+export COVERAGE_FILE=".coverage.$QUANTUM_TESTING_PHASE.$BUILD_ID"
+export COVERAGE=coverage3
+RETVAL="0"
+
+export QUANTUM_TESTING_PHASE
+echo "Running test phase '$QUANTUM_TESTING_PHASE', build: $BUILD_ID"
+case $QUANTUM_TESTING_PHASE in
+  all)
+    QUANTUM_TESTING_PHASE="unit" $0 &&\
+    QUANTUM_TESTING_PHASE="integration" $0 &&\
+    QUANTUM_TESTING_PHASE="system" $0 &&\
+    QUANTUM_TESTING_PHASE="coverage" $0
+  ;;
+  unit)
+    $COVERAGE run -m nose --cover-package=$MODULE_NAME $@
+    RETVAL="$?"
+    break;
+  ;;
+  integration)
+    $COVERAGE run -m nose --cover-package=$MODULE_NAME $@
+    RETVAL="$?"
+    break;
+  ;;
+  system)
+    $COVERAGE run -m nose --cover-package=$MODULE_NAME $@
+    RETVAL="$?"
+    break;
+  ;;
+  coverage)
+    export COVERAGE_FILE=".coverage"
+    $COVERAGE combine .
+    $COVERAGE report --include=$MODULE_NAME/* \
+        --fail-under $MIN_PERCENTAGE -m\
+        --omit **/test_*\
+        --skip-covered
+    RETVAL="$?"
+    break;
+  ;;
+  lint)
+    echo "Test phase '$QUANTUM_TESTING_PHASE' is not implemented for language 'python'"
+    RETVAL="$?"
+    break;
+  ;;
+  *)
+    echo "'$QUANTUM_TESTING_PHASE' is not a valid testing phase."
+  ;;
+esac
+exit $RETVAL

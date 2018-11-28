@@ -1,0 +1,158 @@
+#######################################################################
+#
+#   GENERAL PROJECT AND LANGUAGE CONFIGURATION
+#
+#######################################################################
+project:
+  version: 1.0.0
+  name: quantum
+
+  # Configures the type of project. The Quantum Service Assembler (QSA)
+  # supports two types of codebases, being `application` and `library.
+  type: library
+
+  # Specifies all extensions that are enabled for this Quantum
+  # project. Removing an extension from this list will cause all
+  # its source code to be removed from the project, and all
+  # extensions that depend on it to be rerendered.
+  extensions: []
+
+
+# This section configures general options regarding the code package
+# that is maintained using the Quantum Service Assenbler (QSA).
+package:
+  language: python
+
+  # This is the name of the source module that contains the application
+  # or library code, and is also used as a general identifier for this
+  # project.
+  name: quantum
+
+  # Indicates if this package is being published to the conventional
+  # repositories for the project programming language, such as pip
+  # for Python, npm for Javascript, compose for PHP, etc.
+  publish: true
+
+
+pypi:
+  # Identifies the credentials that are used to authenticate
+  # with the PyPI repository.
+  credentials: pypi.wizardsofindustry
+
+python:
+  # Specifies the Python version for this application or library. Note that
+  # this value is also dependent on .python.dialect (see below).
+  version: "3.6"
+
+  # The Python dialect. Allowed values are 'cpython', 'cython', 'pypy',
+  # or 'jython'. Currently only 'cpython' is implemented.
+  dialect: cpython
+
+  # The framework that this application uses. Choose from 'quantum'
+  # or 'django'. This value must be null if the project is of type
+  # 'library'.
+  framework: null
+
+  # The Python packages that are required by the codebase and are
+  # retrieved through PyPI (using pip).
+  requirements:
+  - package: "marshmallow"
+    version: "3.0.0b18"
+  - package: "python-ioc"
+    version: "1.3.4"
+
+  # Indicates that this project is a legacy project (existing Python)
+  # codebase and that no changes should be made to Python code.
+  legacy: false
+
+
+#######################################################################
+#
+#   TEST SUITE CONFIGURATION
+#
+#######################################################################
+testing:
+
+  # Specifies the minimum automated test coverage that is required for
+  # this project.
+  min_coverage: 100
+
+  # Indicates that the application code should be linted during
+  # test runs.
+  lint: false
+
+
+#######################################################################
+#
+#   CONTAINER CONFIGURATION
+#
+#######################################################################
+docker:
+
+  # The base image for the application container. This value
+  # may be changed to use a custom image, instead of the
+  # default Quantum base image.
+  base: wizardsofindustry/quantum-builder:python-3.6.5-slim-stretch
+
+  # Specify arbitrary filepaths that are copied to the container.
+  copy: []
+
+  # Specifies the Docker repository that is used for
+  # this application, used by development tooling and
+  # the CI/CD pipeline.
+  repository: null
+
+  # Items to add to the .dockerignore file.
+  ignore: []
+
+  # Arbitrary commands that are executed during the container
+  # build process. These hooks may be used as a last resort
+  # when configuring the build environment.
+  pre_commands: []
+
+  post_commands: []
+
+
+#######################################################################
+#
+#   CI/CD CONFIGURATION
+#
+#   This section configures the CI/CD pipeline for a Quantum project.
+#
+#######################################################################
+ci:
+
+  # Enforces that commits with changes to the Quantumfile are signed
+  # by trusted comitters.
+  signed_quantumfile: true
+
+  # Indicates that the CI/CD server must verify the GPG signature of
+  # commit tags before deploying the latest build to a certain
+  # environment.
+  #
+  # Setting ci.signed_deployments to true also implies that a commit
+  # tag is mandatory in order to deploy.
+  signed_deployments: false
+
+  # Instructs the CI/CD pipeline to build frontend assets on the slave
+  # instead of inside the container image. This setting only applies
+  # to projects of type 'application'.
+  build_assets: false
+
+  ssh:
+    # Identifies the SSH credentials that are used to access protected
+    # resources.
+    credentials: null
+
+    # Indicates if the CI pipeline may use VCS tags to tag
+  # build artifacts (containers, packages). Note that this
+  # setting is ignored for build systems that have their
+  # own version/changelog management (e.g. deb, rpm).
+  use_tags: true
+
+  # Configures deployment strategies for branches in the version
+  # control repository, based on branch names and tags.
+  build_branches:
+  - name: master
+    always_deploy: false
+    publish: true
